@@ -1,0 +1,228 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Massey Circle
+  # Location required to calculate the time the sun rises and sets
+  latitude: 39.557330
+  longitude: -105.088100
+  elevation: 5561
+  # metric for Metric, imperial for Imperial
+  unit_system: imperial
+  # Pick from http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: America/Denver
+  customize: !include customize.yaml
+  auth_providers:
+    - type: homeassistant
+    - type: trusted_networks
+
+weather:
+  - platform: darksky
+    api_key: !secret darksky_api_key
+
+# Logger
+#logger:
+#  default: info
+#  logs:
+#     homeassistant.components.bluetooth_le_tracker: debug
+#    homeassistant.components.nest: debug
+#    homeassistant.components.http: debug
+#    rachio: debug
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+# Just use the embedded MQTT broker for now
+mqtt:
+  broker: 10.10.1.99
+  username: homeassistant
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  include_used_components: true
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Enables a map showing the location of tracked devices
+#map:
+
+# Track the sun
+sun:
+
+# Text to speech
+tts:
+  - platform: google
+
+# Auth in secrets
+#cloud:
+
+sensor: !include sensor.yaml
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+http:
+  api_password: !secret http_api_passwd
+  cors_allowed_origins:
+    - https://google.com
+    - https://www.home-assistant.io
+  use_x_forwarded_for: True
+  trusted_proxies:
+    - 127.0.0.1
+    - 10.10.1.99
+    - ::1
+  trusted_networks:
+    - 127.0.0.1
+    - ::1
+    - 10.10.0.0/16
+  ip_ban_enabled: True
+  login_attempts_threshold: 10
+  base_url: ha.wmarler.com
+
+rachio:
+  api_key: !secret rachio_api_key
+#    manual_run_mins: 2
+
+binary_sensor:
+#  - platform: rachio
+
+switch:
+#  - platform: rachio
+
+# TODO: Connect Hagrid via CEC, and use the JSON-CEC Add-on
+# https://www.home-assistant.io/components/media_player.kodi/ 
+media_player:
+  - platform: kodi
+    host: 10.10.1.97
+    turn_on_action:
+      - service: wake_on_lan.send_magic_packet
+        data:
+          mac: b8:27:eb:5f:f2:85
+          broadcast_address: 10.10.1.255
+
+zwave:
+  usb_path: /dev/ttyACM0
+  device_config: !include zwave_device_config.yaml
+  network_key: "0xBF, 0xA3, 0xB4, 0x4A, 0x23, 0x2C, 0x7B, 0x31, 0xAD, 0xE2, 0x5F, 0x04, 0x49, 0x06, 0x30, 0xF4"
+
+cover:
+  platform: opengarage
+  covers:
+    garage:
+      host: 10.10.1.39
+      device_key: opendoor
+      name: garage
+
+nest:
+  client_id: !secret nest_client_id
+  client_secret: !secret nest_client_secret
+
+notify:
+  - name: html5
+    platform: html5
+    gcm_api_key: !secret gcm_api_key
+    gcm_sender_id: !secret gcm_sender_id
+  - name: pushbullet
+    platform: pushbullet
+    api_key: !secret pushbullet_access_token
+  - name: gmail
+    platform: smtp
+    server: smtp.gmail.com
+    port: 587
+    timeout: 15
+    sender: wamarlerpbx@gmail.com
+    encryption: starttls
+    username: wamarlerpbx@gmail.com
+    password: !secret wamarlerpbx_pass
+    recipient:
+      - will.marler@gmail.com
+    sender_name: Home Assistant
+
+input_boolean:
+  vacation_mode:
+    name: Vacation Mode
+    initial: off
+    icon: mdi:gate
+  automations_enabled:
+    name: Automations Enabled
+    initial: on
+    icon: mdi:check-circle-outline
+
+device_tracker:
+  - platform: nmap_tracker
+    hosts:
+      - 10.10.1.193
+      - 10.10.1.80
+      - 10.10.1.81
+#  - platform: bluetooth_tracker
+#  - platform: bluetooth_le_tracker
+
+input_number:
+  swamp_cooler_on_temp:
+    name: Swamp Cooler On Temperature
+    initial: 74
+    min: 70
+    max: 90
+    step: 1
+#  swamp_cooler_off_temp:
+#    name: Swamp Cooler Off Temperature
+
+google_assistant:
+  project_id: massey-home-assistant
+  api_key: !secret google_assistant_secret
+#  expose_by_default: false
+#  exposed_domains:
+#    - switch
+#    - light
+#    - cover
+#    - scene
+#    - lock
+#    - input boolean
+  # allow_unlock: false
+  entity_config:
+    switch.light_upstairs_porch:
+      name: Upstairs Porch Light
+      expose: true
+      room: Front Porch
+    switch.light_mud_room:
+      name: Mud Room Light
+      expose: true
+      room: Mud Room
+    switch.light_lamp_post:
+      name: Outdoor Lamp Post
+      expose: true
+      room: Front Porch
+    switch.light_upstairs_entryway:
+      name: Upstairs Entry Light
+      expose: true
+      room: Entryway
+    switch.light_walkout_basement_overhead:
+      name: Walkout Basement Overhead
+      expose: true
+      room: Walkout Basement
+    switch.swamp_cooler:
+      name: Swamp Cooler
+      expose: true
+      room: Entryway
+    lock.front_deadbolt:
+      name: Front Door Deadbolt
+      expose: true
+      room: Entryway
+

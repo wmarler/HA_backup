@@ -1,0 +1,239 @@
+- platform: darksky
+  api_key: !secret darksky_api_key
+  forecast:
+    - 1
+    - 2
+  monitored_conditions:
+    - summary
+    - precip_probability
+    - temperature
+    - temperature_high
+    - temperature_low
+  update_interval: '00:07'
+
+- platform: template
+  sensors:
+    occupancy:
+      friendly_name: 'Occupancy'
+      value_template: >-
+        {% set confidence = states('sensor.occupancy_confidence')|int %}
+        {% if confidence > 90 %}
+          Someone's Home
+        {% elif confidence > 50 %}
+          Someone's Probably Home
+        {% elif confidence > 20 %}
+          Probably Nobody's Home
+        {% else %}
+          Nobody's Home
+        {% endif %}
+      icon_template: >-
+        {% set occupancy = states('sensor.occupancy') %}
+        {% if occupancy ==  "Someone's Home" %}
+          mdi:account-check
+        {% elif occupancy == "Nobody's Home" %}
+          mdi:account-off
+        {% else %}
+          mdi:account-search
+        {% endif %}
+    basement_sliding_door:
+      friendly_name: 'Basement Sliding Door'
+      value_template: >-
+        {% if states.binary_sensor.basement_slider %}
+          {% if is_state("binary_sensor.basement_slider","on") %}
+            Open
+          {% else %}
+            Closed
+          {% endif %}
+        {% else %}
+          ERROR: Sensor Not Detected!
+        {% endif %}
+      icon_template: >-
+        {% set door_status = states('sensor.basement_sliding_door') %}
+        {% if door_status == 'Open' %}
+          mdi:door-open
+        {% elif door_status == 'Closed' %}
+          mdi:door-closed
+        {% else %}
+          mdi:alert
+        {% endif %}
+    front_door:
+      friendly_name: 'Front Door'
+      value_template: >-
+        {% if states.binary_sensor.front_door %}
+          {% if is_state("binary_sensor.front_door","on") %}
+            Open
+          {% else %}
+            Closed
+          {% endif %}
+        {% else %}
+          ERROR: Sensor Not Detected!
+        {% endif %}
+      icon_template: >-
+        {% set door_status = states('sensor.front_door_status') %}
+        {% if door_status == 'Open' %}
+          mdi:door-open
+        {% elif door_status == 'Closed' %}
+          mdi:door-closed
+        {% else %}
+          mdi:alert
+        {% endif %}
+    garage_door:
+      friendly_name: 'Garage Door'
+      value_template: >-
+        {% if states.cover.garage %}
+          {% if states.cover.garage.attributes["door_state"] == "open" %}
+            Open
+          {% elif states.cover.garage.attributes["door_state"] == "closed" %}
+            Closed
+          {% elif states.cover.garage.attributes["door_state"] == "opening" %}
+            Opening
+          {% elif states.cover.garage.attributes["door_state"] == "closing" %}
+            Closing
+          {% else %}
+            Unknown
+          {% endif %}
+        {% else %}
+          n/a
+        {% endif %}
+      icon_template: >-
+        {% set door_status = states('sensor.garage_door_status') %}
+        {% if door_status == 'Open' %}
+          mdi:garage-open
+        {% elif door_status == 'Closed' %}
+          mdi:garage
+        {% else %}
+          mdi:garage-alert
+        {% endif %}
+    garage_car_present:
+      friendly_name: 'Car Present'
+      value_template: >-
+        {% if states.cover.garage %}
+          {% if states.cover.garage.state == "open" %}
+            n/a
+          {% elif ((states.cover.garage.attributes["distance_sensor"] > 40) and (states.cover.garage.attributes["distance_sensor"] < 100)) %}
+            Yes
+          {% else %}
+            No
+          {% endif %}
+        {% else %}
+          n/a
+        {% endif %}
+    deadbolt_battery_status:
+      friendly_name: 'Front Door Deadbolt'
+      value_template: >-
+        {% if states.zwave.front_door_deadbolt %}
+          {{ states.zwave.front_door_deadbolt.attributes.battery_level }}
+        {% else %}
+          unknown
+        {% endif %}
+      unit_of_measurement: '%'
+      icon_template: >-
+        {% set battery_level = states('sensor.deadbolt_battery_status')|int('unknown') %}
+        {% set battery_round = (battery_level|int / 10)|int * 10 %}
+        {% if battery_level == 'unknown' %}
+          mdi:battery-unknown
+        {% else %}
+          {% if battery_round >= 100 %}
+            mdi:battery
+          {% elif battery_round > 0 %}
+            mdi:battery-{{ battery_round }}
+          {% else %}
+            mdi:battery-alert
+          {% endif %}
+        {%endif %}
+    front_door_detector_battery_status:
+      friendly_name: 'Front Door Sensor'
+      value_template: >-
+        {% if states.zwave.neo_coolcam_doorwindow_detector_front_door %}
+          {{states.zwave.neo_coolcam_doorwindow_detector_front_door.attributes.battery_level}}
+        {% else %}
+          unknown
+        {% endif %}
+      unit_of_measurement: '%'
+      icon_template: >-
+        {% set battery_level = states('sensor.front_door_detector_battery_status')|int('unknown') %}
+        {% set battery_round = (battery_level|int / 10)|int * 10 %}
+        {% if battery_level == 'unknown' %}
+          mdi:battery-unknown
+        {% else %}
+          {% if battery_round >= 100 %}
+            mdi:battery
+          {% elif battery_round > 0 %}
+            mdi:battery-{{ battery_round }}
+          {% else %}
+            mdi:battery-alert
+          {% endif %}
+        {%endif %}
+    basement_sliding_door_detector_battery_status:
+      friendly_name: 'Basement Sliding Door Sensor'
+      value_template: >-
+        {% if states.zwave.neo_coolcam_doorwindow_detector_basement_slider %}
+          {{states.zwave.neo_coolcam_doorwindow_detector_basement_slider.attributes.battery_level}}
+        {% else %}
+          unknown
+        {% endif %}
+      unit_of_measurement: '%'
+      icon_template: >-
+        {% set battery_level = states('sensor.basement_sliding_door_detector_battery_status')|int('unknown') %}
+        {% set battery_round = (battery_level|int / 10)|int * 10 %}
+        {% if battery_level == 'unknown' %}
+          mdi:battery-unknown
+        {% else %}
+          {% if battery_round >= 100 %}
+            mdi:battery
+          {% elif battery_round > 0 %}
+            mdi:battery-{{ battery_round }}
+          {% else %}
+            mdi:battery-alert
+          {% endif %}
+        {%endif %}
+
+- platform: moon
+
+
+# See https://github.com/andrewjfreyer/monitor#an-example-use-with-home-assistant
+# This is to use the monitor.service with MQTT provided by this script
+# My Pixel2: 40:4E:36:5A:73:A6
+# Kristin's iPhone: F0:99:B6:00:F8:02
+- platform: mqtt
+  state_topic: 'monitor/ginny/F0:99:B6:00:F8:02'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: kristins_phone_ginny
+- platform: mqtt
+  state_topic: 'monitor/ginny/40:4E:36:5A:73:A6'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: wills_phone_ginny
+- platform: mqtt
+  state_topic: 'monitor/tonks/F0:99:B6:00:F8:02'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: kristins_phone_tonks
+- platform: mqtt
+  state_topic: 'monitor/tonks/40:4E:36:5A:73:A6'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: wills_phone_tonks
+- platform: min_max
+  name: kristins_phone_home_confidence
+  type: max
+  round_digits: 0
+  entity_ids:
+    - sensor.kristins_phone_ginny
+    - sensor.kristins_phone_tonks
+- platform: min_max
+  name: wills_phone_home_confidence
+  type: max
+  round_digits: 0
+  entity_ids:
+    - sensor.wills_phone_ginny
+    - sensor.wills_phone_tonks
+- platform: min_max
+  name: occupancy_confidence
+  type: max
+  round_digits: 0
+  entity_ids:
+    - sensor.kristins_phone_home_confidence
+    - sensor.wills_phone_home_confidence
+

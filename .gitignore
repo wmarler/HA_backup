@@ -1,0 +1,21 @@
+# https://www.home-assistant.io/docs/ecosystem/backup/backup_github/
+
+# Ignore everyhing by default
+*
+
+# Explicitly do not ignore these
+!*.yaml
+!.gitignore
+!*.md
+
+# Explicitly ignore these
+.storage
+.cloud
+.google.token
+
+
+# Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
+ip_bans.yaml
+secrets.yaml
+known_devices.yaml
+

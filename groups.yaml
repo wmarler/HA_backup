@@ -1,0 +1,94 @@
+# MaterialDesign icons: https://cdn.materialdesignicons.com/2.8.94/
+# Group documentation: https://www.home-assistant.io/components/group/
+default_view:
+  view: yes
+  icon: mdi:home-assistant
+  entities:
+    - group.garage
+    - group.lock
+    - group.climate
+    - group.lights
+    - group.modes
+modes:
+  name: Modes
+  control: hidden
+  entities:
+    - input_boolean.vacation_mode
+    - input_boolean.automations_enabled
+garage:
+  name: Garage
+  entities:
+    - cover.garage
+    - sensor.garage_door_status
+    - sensor.garage_car_present
+lock:
+  name: House
+  entities:
+    - sensor.occupancy
+    - lock.front_deadbolt
+    - sensor.front_door_status
+    - sensor.basement_sliding_door
+climate:
+  name: Climate
+  entities:
+    - sensor.dark_sky_temperature
+    - sensor.dark_sky_summary 
+    - climate.dining_room
+    - switch.swamp_cooler
+lights:
+  name: Lights
+  # control: hidden
+  entities:
+    - switch.light_lamp_post
+    - switch.light_mud_room
+    - switch.light_upstairs_entryway
+    - switch.light_upstairs_porch
+    - switch.receptacle_patio_duplex
+    - switch.light_walkout_basement_overhead
+    - light.family_room_chandelier_dimmer
+    # - switch.light_walkout_basement_unknown
+media_players:
+  name: Media Players
+  view: yes
+  icon: mdi:cast
+  entities:
+    - media_player.bedroom_tv
+    - media_player.downstairs_tv
+    - media_player.kitchen_speaker
+    - media_player.kodi
+    - media_player.soundtouch_300
+    - script.update_library
+rachio:
+  name: Sprinkler
+  view: yes
+  icon: mdi:water-pump
+  entities: 
+    - group.rachio_sensors
+rachio_sensors:
+  name: Rachio
+  control: hidden
+  entities:
+    - binary_sensor.rainman_online
+    - switch.sprinkler_rainman_in_standby_mode
+    - switch.sprinkler_inside_fence_northeast_
+    - switch.sprinkler_inside_fence_eastnortheast
+    - switch.sprinkler_inside_fence_east
+    - switch.sprinkler_inside_fence_south
+    - switch.sprinkler_outside_fence_playset
+    - switch.sprinkler_outside_fence_2
+    - switch.sprinkler_outside_fence_3_south
+    - switch.sprinkler_outside_fence_by_garage__well
+    - switch.sprinkler_garden
+battery_view:
+  name: Battery Statuses
+  view: yes
+  icon: mdi:battery-unknown
+  entities:
+    - group.battery_sensors
+battery_sensors:
+  name: Battery Levels
+  entities:
+    - sensor.deadbolt_battery_status
+    - sensor.basement_sliding_door_detector_battery_status
+    - sensor.front_door_detector_battery_status
+

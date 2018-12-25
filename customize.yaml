@@ -1,0 +1,44 @@
+cover.garage:
+  friendly_name: Door Control
+  icon: mdi:light-switch
+sensor.garage_car_present:
+  icon: mdi:car
+media_player.bedroom_tv:
+  friendly_name: Bedroom Chromecast
+media_player.downstairs_tv:
+  friendly_name: Downstairs Chromecast
+media_player.kodi:
+  friendly_name: Downstairs Kodi
+zwave.neo_coolcam_doorwindow_detector:
+  friendly_name: Front Door Detector
+  node_name: Front Door Detector
+zwave.ge_14292_inwall_smart_toggle_switch:
+  friendly_name: Outdoor Lamppost Light ZWave Device
+  node_name: Outdoor Lamppost Light ZWave Device
+switch.ge_14292_inwall_smart_toggle_switch_switch:
+  friendly_name: Outdoor Lamppost Light Switch
+zwave.ge_14292_inwall_smart_toggle_switch_2:
+  friendly_name: Mud Room Light ZWave Device
+  node_name: Mud Room Light ZWave Device
+switch.ge_14292_inwall_smart_toggle_switch_switch_2:
+  friendly_name: Mud Room Light Switch
+zwave.ge_14291_inwall_smart_switch_switch:
+  friendly_name: Upstairs Entry Light ZWave Device
+  node_name: Upstairs Entry Light ZWave Device
+switch.ge_14291_inwall_smart_switch_switch:
+  friendly_name: Upstairs Entry Light Switch
+zwave.ge_14291_inwall_smart_switch_switch_2:
+  friendly_name: Upstairs Porch Light ZWave Device
+  node_name: Upstairs Porch Light ZWave Device
+switch.ge_14291_inwall_smart_switch_switch_2:
+  friendly_name: Upstairs Porch Light Switch
+binary_sensor.front_door:
+  hidden: true
+zwave.neo_coolcam_doorwindow_detector_2:
+  friendly_name: Basement Sliding Door Detector
+  node_name: Basement Sliding Door Detector
+zwave.unknown_node_9: {}
+sensor.dark_sky_temperature:
+  friendly_name: Outdoor Temperature
+sensor.dark_sky_summary:
+  friendly_name: Outdoor Conditions

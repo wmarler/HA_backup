@@ -1,0 +1,11 @@
+- name: 'Night Time'
+  entities:
+    group.lights:
+      state: off
+    cover.garage: closed
+    lock.front_deadbolt: locked
+
+
+
+
+

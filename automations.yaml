@@ -1,0 +1,195 @@
+- id: 'front_door_11pm_lock'
+  alias: Lock the front door after 11PM
+  trigger:
+  - at: '23:00:00'
+    platform: time
+  condition:
+  - condition: state
+    entity_id: sensor.front_door_status
+    state: 'Closed'
+  - condition: state
+    entity_id: input_boolean.automations_enabled
+    state: 'on'
+  action:
+  - alias: 'Lock the front door'
+    service: lock.lock
+    entity_id: lock.front_deadbolt
+
+#- id: 'auto_lock_failed_notification'
+#  alias: Send a notification when the lock fails to lock
+#  trigger:
+#    platform: event
+
+# Swamp cooler control. Turn the swamp cooler on automatically at one temp
+# and off again at another temp.
+
+# These are 2 separate triggers/actions, b/c delay in Z-Wave response
+# can cause a simple "toggle" to get out of sync.
+- id: 'tie_string_lights_to_unknown_switch_on'
+  alias: 'Turn on deck string lights from the basement switch'
+  trigger:
+    - platform: state
+      entity_id: switch.light_walkout_basement_unknown
+      from: 'off'
+      to: 'on'
+  action: 
+    service: homeassistant.turn_on
+    entity_id: switch.receptacle_patio_duplex
+- id: 'tie_string_lights_to_unknown_switch_off'
+  alias: 'Turn off deck string lights from the basement switch'
+  trigger:
+    - platform: state
+      entity_id: switch.light_walkout_basement_unknown
+      from: 'on'
+      to: 'off'
+  action: 
+    service: homeassistant.turn_off
+    entity_id: switch.receptacle_patio_duplex
+
+- id: 'tie_lamp_post_to_upstairs_porch_on'
+  alias: 'Turn on lamp post light from the upstairs porch switch'
+  trigger:
+    - platform: state
+      entity_id: switch.light_upstairs_porch
+      from: 'off'
+      to: 'on'
+  action: 
+    service: homeassistant.turn_on
+    entity_id: switch.light_lamp_post
+- id: 'tie_lamp_post_to_upstairs_porch_off'
+  alias: 'Turn off lamp post light from the upstairs porch switch'
+  trigger:
+    - platform: state
+      entity_id: switch.light_upstairs_porch
+      from: 'on'
+      to: 'off'
+  action: 
+    service: homeassistant.turn_off
+    entity_id: switch.light_lamp_post
+
+# Vacation Mode
+# Send an alert (currently email) on the state change of any of the following:
+# Garage door, front door, front deadbolt.
+- id: 'vacation_mode'
+  alias: Notifications for door activity
+  trigger: 
+    - platform: state
+      entity_id: lock.front_deadbolt
+      from: 'Open'
+      to: 'Closed' 
+    - platform: state
+      entity_id: lock.front_deadbolt
+      from: 'Closed'
+      to: 'Open'
+    - platform: state
+      entity_id: sensor.basement_sliding_door
+      from: 'Open'
+      to: 'Closed'
+    - platform: state
+      entity_id: sensor.basement_sliding_door
+      from: 'Closed'
+      to: 'Open'
+    - platform: state
+      entity_id: sensor.front_door
+      from: 'Open'
+      to: 'Closed'
+    - platform: state
+      entity_id: sensor.front_door
+      from: 'Closed'
+      to: 'Open'
+    - platform: state
+      entity_id: sensor.garage_door
+  condition:
+    - condition: state
+      entity_id: input_boolean.vacation_mode
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.automations_enabled
+      state: 'on'
+  action:
+    - alias: 'Send an email'
+      service: notify.gmail
+      data_template: 
+        title: '[Home Assistant] Vacation Mode Alert!: "{{ trigger.from_state.name }}"'
+        message: '"{{ trigger.from_state.name }}" changed state from "{{ trigger.from_state.state }}" to "{{ trigger.to_state.state }}".'
+
+
+# HA Version Update GMail notifications
+- id: 'ha_version'
+  alias: 'HA Update Notifier'
+  trigger:
+    - platform: state
+      entity_id: updater.updater
+  action:
+    service: notify.gmail
+    data_template:
+      title: '[Home Assistant] Update available!'
+      message: "Check it out: there's a new Home Assistant update available."
+
+
+# Turn on the porch/lamp post lights 20 mins after sunset
+- id: 'welcome_lights_after_sunset'
+  alias: 'Welcome Lights After Sunset'
+  trigger:
+    platform: sun
+    event: sunset
+    offset: '-00:20:00'
+  action:
+    - service: homeassistant.turn_on
+      entity_id: switch.light_lamp_post
+    - service: homeassistant.turn_on
+      entity_id: switch.light_upstairs_porch
+
+# Turn off the porch/lamp post lights at 11pm
+- id: 'welcome_lights_off_at_9:30pm'
+  alias: 'Welcome lights off at 9:30pm'
+  trigger:
+  - at: '21:30:00'
+    platform: time
+  condition:
+  - condition: state
+    entity_id: input_boolean.automations_enabled
+    state: 'on'
+  action:
+    - service: homeassistant.turn_off
+      entity_id: switch.light_lamp_post
+    - service: homeassistant.turn_off
+      entity_id: switch.light_upstairs_porch
+
+# Triggers based on when the house is occupied or not.
+- id: 'notify_when_home'
+  alias: 'Occupancy state change'
+  trigger: 
+    - platform: numeric_state
+      entity_id: sensor.occupancy_confidence
+      above: 90
+    - platform: numeric_state
+      entity_id: sensor.occupancy_confidence
+      below: 10
+  condition:
+  - condition: state
+    entity_id: input_boolean.automations_enabled
+    state: 'on'
+  action:
+    service: notify.gmail
+    data_template:
+      title: '[Home Assistant] Occupancy status change: "{{ trigger.from_state.name }}"'
+      message: '"{{ trigger.from_state.name }}" changed state from "{{ trigger.from_state.state }}" to "{{ trigger.to_state.state }}".'
+
+
+
+
+
+#- id: 'notify_when_away'
+#  alias: 'Occupancy state change from Home to Away'
+#  trigger: 
+#    - platform: numeric_state
+#      entity_id: sensor.occupancy_confidence
+#      below: 10
+#  action:
+#    service: notify.gmail
+#    data_template:
+#      title: '[Home Assistant] Occupancy status change: "{{ trigger.from_state.name }}"'
+#      message: '"{{ trigger.from_state.name }}" changed state from "{{ trigger.from_state.state }}" to "{{ trigger.to_state.state }}".'
+
+
